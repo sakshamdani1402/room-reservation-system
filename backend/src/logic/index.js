@@ -116,7 +116,6 @@ export const bookRoomsByCountAsync = async (args) => {
     }
 
     await bookRoomsAsync({ roomIds: bestBooking.rooms.map(room => room.id) });
-    endDbConnection();
     return {
         status: HTTP_STATUS.OK,
         data: {
