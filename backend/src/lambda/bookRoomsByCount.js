@@ -26,5 +26,3 @@ export const handler = async (event) => {
 
     }
 };
-
-handler({ body: JSON.stringify({ countOfRooms: 5 }) }).then(console.log).catch(console.error);

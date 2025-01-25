@@ -23,5 +23,3 @@ export const handler = async () => {
 
     }
 };
-
-handler().then(console.log).catch(console.error);
