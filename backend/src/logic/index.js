@@ -1,5 +1,4 @@
 import { BOOKING_LIMIT, HTTP_STATUS, ROOM_BOOKING_STATUS } from "../constants/index.js";
-import { endDbConnection, startDbConnection } from "../database/index.js";
 import { bookRoomsAsync, clearAllBookingsAsync, getAllAsync, getRoomsAsync } from "../database/roomRepository.js";
 import { isNullOrEmptyList } from "../utils/index.js";
 
@@ -98,7 +97,6 @@ export const bookRoomsByCountAsync = async (args) => {
     }
 
     const { count } = args;
-    startDbConnection();
     const unbookedRooms = await getRoomsAsync({ status: ROOM_BOOKING_STATUS.UNBOOKED });
 
     if (isNullOrEmptyList(unbookedRooms) || unbookedRooms.length < count) {
@@ -129,14 +127,11 @@ export const bookRoomsByCountAsync = async (args) => {
 };
 
 export const resetBookingAsync = async () => {
-    startDbConnection()
     const result = await clearAllBookingsAsync();
-    endDbConnection();
     return result.affectedRows > 0;
 }
 
 export const bookRamdomRoomsAsync = async () => {
-    startDbConnection();
     const unbookedRooms = await getRoomsAsync({ status: ROOM_BOOKING_STATUS.UNBOOKED });
     if (isNullOrEmptyList(unbookedRooms)) {
         return false;
@@ -151,14 +146,11 @@ export const bookRamdomRoomsAsync = async () => {
     if (result.affectedRows <= 0) {
         throw Error("Failed to book rooms");
     }
-    endDbConnection();
     console.log("randomly booking rooms:" + roomIds.join(","));
     return roomIds;
 }
 
 export const getAllRoomsAsync = async () => {
-    startDbConnection();
     const rooms = await getAllAsync();
-    endDbConnection();
     return rooms;
 }

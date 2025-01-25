@@ -1,47 +1,27 @@
 import { db } from "./index.js"
 
-export const getRoomsAsync = async (args) => {
-    const { status } = args;
-    return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM hotel_rooms WHERE is_booked = ${status} ORDER BY room_number ASC`, (error, result) => {
-            if (error) {
-                reject(error);
-            }
-            resolve(result);
-        });
-    })
-}
+export const getRoomsAsync = async ({ status }) => {
+    const [rows] = await db.execute(
+        `SELECT * FROM hotel_rooms WHERE is_booked = ${status} ORDER BY room_number ASC`,
+    );
+    return rows;
+};
 
 export const getAllAsync = async () => {
-    return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM hotel_rooms ORDER BY room_number ASC`, (error, result) => {
-            if (error) {
-                reject(error);
-            }
-            resolve(result);
-        });
-    })
-}
+    const [rows] = await db.execute('SELECT * FROM hotel_rooms ORDER BY room_number ASC');
+    return rows;
+};
 
-export const bookRoomsAsync = async (args) => {
-    const { roomIds } = args || {};
-    return new Promise((resolve, reject) => {
-        db.query(`UPDATE hotel_rooms SET is_booked = 1 WHERE id IN (${roomIds.join(',')})`, (error, result) => {
-            if (error) {
-                reject(error);
-            }
-            resolve(result);
-        });
-    })
-}
+export const bookRoomsAsync = async ({ roomIds }) => {
+    const [result] = await db.execute(
+        `UPDATE hotel_rooms SET is_booked = 1 WHERE id IN (${roomIds.join(",")})`,
+    );
+    return result;
+};
 
 export const clearAllBookingsAsync = async () => {
-    return new Promise((resolve, reject) => {
-        db.query(`UPDATE hotel_rooms SET is_booked = 0 where is_booked = 1`, (error, result) => {
-            if (error) {
-                reject(error);
-            }
-            resolve(result);
-        });
-    })
-}
+    const [result] = await db.execute(
+        'UPDATE hotel_rooms SET is_booked = 0 WHERE is_booked = 1'
+    );
+    return result;
+};
