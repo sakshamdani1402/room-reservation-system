@@ -12,7 +12,7 @@
 }
 
 .room-box.booked {
-    background-color: #dc3545;
+    background-color: #2de14e;
     color: white;
 }
 
@@ -21,4 +21,9 @@
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+}
+
+.room-box.already-booked {
+    background-color: #757575;
+    color: white;
 }

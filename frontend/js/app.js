@@ -1,83 +1,78 @@
-const API_URL = 'https://kxu3ton0m1.execute-api.ap-south-1.amazonaws.com/dev';
+import { API_URL, toggleLoading, handleError, validateRoomCount, handleApiResponse } from './utils.js';
+import { updateRoomStatus, displayRooms } from "./room-service.js";
 
-async function loadRooms() {
+export async function loadRooms() {
+    document.getElementById('bookRoomsBtn').addEventListener('click', bookRooms);
+    document.getElementById('generateRandomBtn').addEventListener('click', generateRandomBookings);
+    document.getElementById('resetBtn').addEventListener('click', resetBookings);
     try {
+        toggleLoading(true);
         const response = await fetch(`${API_URL}/get-all-rooms`);
-        const data = await response.json();
-        const body = JSON.parse(data.body)
+        const body = await handleApiResponse(response);
         displayRooms(body.rooms);
     } catch (error) {
-        console.error('Failed to load rooms:', error);
-        alert('Failed to load rooms');
+        handleError(error, 'Failed to load rooms');
+    } finally {
+        toggleLoading(false);
     }
 }
 
-function displayRooms(rooms) {
-    const roomGrid = document.getElementById('roomGrid');
-    roomGrid.innerHTML = '';
+export async function bookRooms() {
+    const count = document.getElementById('roomCount')?.value;
+    if (!validateRoomCount(count)) return;
 
-    // Group rooms by floor
-    const roomsByFloor = rooms.reduce((acc, room) => {
-        acc[room.floor_number] = acc[room.floor_number] || [];
-        acc[room.floor_number].push(room);
-        return acc;
-    }, {});
-
-    // Create floor containers
-    for (let floor = 1; floor <= 10; floor++) {
-        const floorContainer = document.createElement('div');
-        floorContainer.className = 'floor-container';
-        floorContainer.innerHTML = `<h5>Floor ${floor}</h5>`;
-
-        const floorRooms = roomsByFloor[floor] || [];
-        floorRooms.sort((a, b) => a.room_number - b.room_number);
-
-        floorRooms.forEach(room => {
-            const roomBox = document.createElement('div');
-            roomBox.className = `room-box ${room.is_booked ? 'booked' : ''}`;
-            roomBox.textContent = `Room ${room.room_number}`;
-            floorContainer.appendChild(roomBox);
-        });
-
-        roomGrid.appendChild(floorContainer);
-    }
-}
-
-async function bookRooms() {
-    const count = document.getElementById('roomCount').value;
     try {
+        toggleLoading(true);
         const response = await fetch(`${API_URL}/book-rooms`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ countOfRooms: parseInt(count) })
+            body: JSON.stringify({ body: JSON.stringify({ roomCount: parseInt(count) }) })
         });
-        const data = await response.json();
-        loadRooms();
+        const body = await handleApiResponse(response);
+
+        if (body.bookedRooms?.length) {
+            updateRoomStatus(body.bookedRooms.map(room => room.id), true);
+        }
     } catch (error) {
-        console.error('Booking failed:', error);
-        alert('Booking failed');
+        handleError(error, 'Booking failed');
+    }
+    finally {
+        toggleLoading(false);
     }
 }
 
-async function generateRandomBookings() {
+export async function generateRandomBookings() {
     try {
-        await fetch(`${API_URL}/book-random-rooms`, { method: 'POST' });
-        loadRooms();
+        toggleLoading(true);
+        const response = await fetch(`${API_URL}/book-random-rooms`, {
+            method: 'POST'
+        });
+        const body = await handleApiResponse(response);
+
+        if (body.bookedRooms?.length) {
+            updateRoomStatus(body.bookedRooms, true);
+        }
     } catch (error) {
-        console.error('Random booking failed:', error);
-        alert('Random booking failed');
+        handleError(error, 'Random booking failed');
+    }
+    finally {
+        toggleLoading(false);
     }
 }
 
-async function resetBookings() {
+export async function resetBookings() {
     try {
+        toggleLoading(true);
         await fetch(`${API_URL}/reset-rooms`, { method: 'PUT' });
-        loadRooms();
+        document.querySelectorAll('.room-box.booked, .room-box.already-booked')
+            .forEach(element => {
+                element.className = 'room-box';
+            });
     } catch (error) {
-        console.error('Reset failed:', error);
-        alert('Reset failed');
+        handleError(error, 'Reset failed');
+    } finally {
+        toggleLoading(false);
     }
 }
 
-// Load rooms when page loads
 document.addEventListener('DOMContentLoaded', loadRooms);

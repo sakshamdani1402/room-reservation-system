@@ -23,7 +23,7 @@
                         <input type="number" id="roomCount" class="form-control" min="1" max="5" value="1">
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-primary" onclick="bookRooms()">Book Rooms</button>
+                        <button class="btn btn-primary" id="bookRoomsBtn">Book Rooms</button>
                     </div>
                 </div>
             </div>
@@ -31,20 +31,26 @@
 
         <!-- Action Buttons -->
         <div class="mb-4">
-            <button class="btn btn-secondary me-2" onclick="generateRandomBookings()">
+            <button class="btn btn-secondary me-2" id="generateRandomBtn">
                 Generate Random Bookings
             </button>
-            <button class="btn btn-danger" onclick="resetBookings()">
+            <button class="btn btn-danger" id="resetBtn">
                 Reset All Bookings
             </button>
         </div>
-
+        <div id="loadingSpinner" class="text-center my-5" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
         <!-- Room Grid -->
         <div id="roomGrid"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/utils.js" type="module"></script>
+    <script src="js/room-service.js" type="module"></script>
+    <script src="js/app.js" type="module"></script>
 </body>
 
 </html>
